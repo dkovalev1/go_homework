@@ -11,10 +11,9 @@ var ErrInvalidString = errors.New("invalid string")
 func Unpack(input string) (string, error) {
 	var sb strings.Builder
 
-	// Assume that 0 is invalid rune value and will never happen in input string.
-	var currentSymbol rune      // Last symbol read from input.
-	var currentSymbolOk = false // If the last_symbol ready to copy to output.
-	var escape = false          // True if escape is active for the current symbol.
+	var currentSymbol rune   // Last symbol read from input.
+	currentSymbolOk := false // If the last_symbol ready to copy to output.
+	escape := false          // True if escape is active for the current symbol.
 
 	for _, r := range input {
 		switch {
