@@ -3,11 +3,11 @@ package hw03frequencyanalysis
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:all
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -46,6 +46,32 @@ var text = `Как видите, он  спускается  по  лестни�
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
+	})
+
+	t.Run("Check case and punctuation rules", func(t *testing.T) {
+		expected := []WordCount{
+			{"нога", 6},
+		}
+		require.Equal(t, expected, WordsWithCount("Нога нога нога! нога нога, нога"))
+	})
+
+	t.Run("Check for difference inside a word", func(t *testing.T) {
+		expected := []WordCount{
+			{"dog,cat", 1},
+			{"dog...cat", 1},
+			{"dogcat", 1},
+			{"и", 1},
+			{"какой-то", 1},
+			{"какойто", 1},
+		}
+		require.Equal(t, expected, WordsWithCount("какой-то и какойто dog,cat dog...cat dogcat"))
+	})
+
+	t.Run("Check for punctuation symbols", func(t *testing.T) {
+		expected := []WordCount{
+			{"-------", 1},
+		}
+		require.Equal(t, expected, WordsWithCount("------- -"))
 	})
 
 	t.Run("positive test", func(t *testing.T) {
