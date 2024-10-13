@@ -11,46 +11,46 @@ var ErrInvalidString = errors.New("invalid string")
 func Unpack(input string) (string, error) {
 	var sb strings.Builder
 
-	// Assume that 0 is invalid rune value and will never happen in input string
-	var current_symbol rune = 0        // last symbol read from input
-	var current_symbol_ok bool = false // if the last_symbol ready to copy to output
-	var escape bool = false            // true if escape is active for the current symbol
+	// Assume that 0 is invalid rune value and will never happen in input string.
+	var currentSymbol rune      // Last symbol read from input.
+	var currentSymbolOk = false // If the last_symbol ready to copy to output.
+	var escape = false          // True if escape is active for the current symbol.
 
 	for _, r := range input {
 		switch {
 		case escape && unicode.IsDigit(r):
-			current_symbol = r
-			current_symbol_ok = true
+			currentSymbol = r
+			currentSymbolOk = true
 			escape = false
 		case unicode.IsDigit(r):
-			if !current_symbol_ok {
+			if !currentSymbolOk {
 				return "", ErrInvalidString
 			}
-			// Do repeat
+			// Do repeat.
 			for count := int(r - '0'); count > 0; count-- {
-				sb.WriteRune(current_symbol)
+				sb.WriteRune(currentSymbol)
 			}
-			current_symbol_ok = false
+			currentSymbolOk = false
 		case escape && r == '\\':
 			escape = false
-			current_symbol, current_symbol_ok = r, true
+			currentSymbol, currentSymbolOk = r, true
 		case r == '\\':
-			sb.WriteRune(current_symbol)
+			sb.WriteRune(currentSymbol)
 			escape = true
-			current_symbol_ok = false
+			currentSymbolOk = false
 		default:
 			if escape {
 				return "", ErrInvalidString
 			}
-			if current_symbol_ok {
-				sb.WriteRune(current_symbol)
+			if currentSymbolOk {
+				sb.WriteRune(currentSymbol)
 			}
-			current_symbol, current_symbol_ok = r, true
+			currentSymbol, currentSymbolOk = r, true
 			escape = false
 		}
 	}
-	if current_symbol_ok {
-		sb.WriteRune(current_symbol)
+	if currentSymbolOk {
+		sb.WriteRune(currentSymbol)
 	}
 	return sb.String(), nil
 }
