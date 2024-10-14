@@ -3,10 +3,13 @@ package hw02unpackstring
 import (
 	"errors"
 	"strings"
-	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
+
+func isASCIIDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
 
 func Unpack(input string) (string, error) {
 	var sb strings.Builder
@@ -17,11 +20,11 @@ func Unpack(input string) (string, error) {
 
 	for _, r := range input {
 		switch {
-		case escape && unicode.IsDigit(r):
+		case escape && isASCIIDigit(r):
 			currentSymbol = r
 			currentSymbolOk = true
 			escape = false
-		case unicode.IsDigit(r):
+		case isASCIIDigit(r):
 			if !currentSymbolOk {
 				return "", ErrInvalidString
 			}
