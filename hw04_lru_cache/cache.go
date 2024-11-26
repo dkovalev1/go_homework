@@ -74,7 +74,5 @@ func (lc *lruCache) Clear() {
 
 	clear(lc.items)
 
-	for i := lc.queue.Back(); i != nil; i = lc.queue.Back() {
-		lc.queue.Remove(i)
-	}
+	lc.queue = NewList()
 }
