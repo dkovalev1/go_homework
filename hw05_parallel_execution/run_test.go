@@ -8,14 +8,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:all
 	"go.uber.org/goleak"
 )
 
 /*
 require.Eventually uses a timer to measure duration interval with a periodic call
 of condition function to check the status as we can see in assertions.go:1636.
-Similar mechanism with a timer is used in Sleep() as we can see in https://github.com/golang/go/blob/5164a865e3de723f07976edac234c4d6a814128e/src/runtime/time.go#L283.
+Similar mechanism with a timer is used in Sleep() as we can see in:
+https://github.com/golang/go/blob/5164a865e3de723f07976edac234c4d6a814128e/src/runtime/time.go#L283.
 
 Our task requires us to use require.Eventually*() instead of time.Sleep() but since it's virtually the same,
 let's make our own simple Sleep() implementation with a timer.

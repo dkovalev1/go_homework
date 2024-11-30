@@ -29,7 +29,7 @@ func (q *taskQueue) getNewTask() Task {
 	return task
 }
 
-func NewTaskQueue(tasks []Task) *taskQueue {
+func newTaskQueue(tasks []Task) *taskQueue {
 	return &taskQueue{
 		tasks: tasks,
 	}
@@ -37,12 +37,10 @@ func NewTaskQueue(tasks []Task) *taskQueue {
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
-
 	var nerrors atomic.Int32
-
-	queue := NewTaskQueue(tasks)
-
 	var wg sync.WaitGroup
+
+	queue := newTaskQueue(tasks)
 
 	for i := 0; i < n; i++ {
 		wg.Add(1)
@@ -50,7 +48,6 @@ func Run(tasks []Task, n, m int) error {
 			defer wg.Done()
 
 			for task := queue.getNewTask(); task != nil; task = queue.getNewTask() {
-
 				if err := task(); err != nil {
 					nerrors.Add(1)
 				}
