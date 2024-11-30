@@ -1,4 +1,4 @@
-module github.com/dkovalev1/hw04_lru_cache
+module github.com/dkovalev1/go_homework/hw04_lru_cache
 
 go 1.22
 
