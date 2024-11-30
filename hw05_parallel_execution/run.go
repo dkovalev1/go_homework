@@ -55,7 +55,7 @@ func Run(tasks []Task, n, m int) error {
 					nerrors.Add(1)
 				}
 
-				if int(nerrors.Load()) >= m {
+				if m > 0 && int(nerrors.Load()) >= m {
 					return ErrErrorsLimitExceeded
 				}
 			}
@@ -65,7 +65,7 @@ func Run(tasks []Task, n, m int) error {
 
 	wg.Wait()
 
-	if int(nerrors.Load()) >= m {
+	if m > 0 && int(nerrors.Load()) >= m {
 		return ErrErrorsLimitExceeded
 	}
 
