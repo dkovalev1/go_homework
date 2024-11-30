@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:all
 )
 
 func TestCache(t *testing.T) {
@@ -51,6 +51,45 @@ func TestCache(t *testing.T) {
 
 	t.Run("purge logic", func(t *testing.T) {
 		// Write me
+
+		c := NewCache(5)
+
+		for i := range 5 {
+			k := strconv.Itoa(i)
+			existed := c.Set(Key(k), i)
+			require.False(t, existed)
+		}
+
+		// Size of cache is 5, we inserted 5 elements. 1st element (oldest) must be in cache.
+		// Read it
+
+		elem, ok := c.Get("0")
+		require.True(t, ok)
+		require.Equal(t, 0, elem.(int))
+
+		// Put one more element and check that oldest (1) was pushed out.
+		ok = c.Set("5", 5)
+		require.False(t, ok)
+
+		elem, ok = c.Get("1")
+		require.False(t, ok)
+		require.Nil(t, elem)
+
+		// Queue now should be 5 0 4 3 2, next insert should delete 2, but not 3
+		ok = c.Set("6", 6)
+		require.False(t, ok)
+
+		// Queue now should be 6 5 0 4 3
+		elem, ok = c.Get("2")
+		require.False(t, ok)
+		require.Nil(t, elem)
+
+		elem, ok = c.Get("3")
+		require.True(t, ok)
+		require.NotNil(t, elem)
+		require.Equal(t, 3, elem.(int))
+
+		// Queue now should be 3 6 5 0 4
 	})
 }
 
