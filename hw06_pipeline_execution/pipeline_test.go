@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint
 )
 
 const (
@@ -27,6 +27,24 @@ func TestPipeline(t *testing.T) {
 					time.Sleep(sleepPerStage)
 					out <- f(v)
 				}
+				// start := time.Now()
+				// count := 0
+				// for {
+				// 	select {
+				// 	case <-time.After(sleepPerStage):
+				// 		fmt.Printf("%s.%d Timeout %d\n", stageName, time.Since(start), sleepPerStage)
+				// 	case v, ok := <-in:
+				// 		if ok {
+				// 			count++
+				// 			fmt.Printf("%s.%d %v: stage func, read v=%v %T\n", stageName, count, time.Since(start), v, v)
+				// 			time.Sleep(sleepPerStage)
+				// 			ret := f(v)
+				// 			out <- ret
+				// 		} else {
+				// 			return
+				// 		}
+				// 	}
+				// }
 			}()
 			return out
 		}
@@ -150,6 +168,5 @@ func TestAllStageStop(t *testing.T) {
 		wg.Wait()
 
 		require.Len(t, result, 0)
-
 	})
 }
