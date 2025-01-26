@@ -20,7 +20,7 @@ func drainChannel(in In, stageNo int) {
 		}
 	} else {
 		go func() {
-			for range in {
+			for range in { //nolint
 			}
 		}()
 	}
