@@ -27,24 +27,6 @@ func TestPipeline(t *testing.T) {
 					time.Sleep(sleepPerStage)
 					out <- f(v)
 				}
-				// start := time.Now()
-				// count := 0
-				// for {
-				// 	select {
-				// 	case <-time.After(sleepPerStage):
-				// 		fmt.Printf("%s.%d Timeout %d\n", stageName, time.Since(start), sleepPerStage)
-				// 	case v, ok := <-in:
-				// 		if ok {
-				// 			count++
-				// 			fmt.Printf("%s.%d %v: stage func, read v=%v %T\n", stageName, count, time.Since(start), v, v)
-				// 			time.Sleep(sleepPerStage)
-				// 			ret := f(v)
-				// 			out <- ret
-				// 		} else {
-				// 			return
-				// 		}
-				// 	}
-				// }
 			}()
 			return out
 		}
@@ -169,4 +151,36 @@ func TestAllStageStop(t *testing.T) {
 
 		require.Len(t, result, 0)
 	})
+}
+
+func TestDrainChannel(t *testing.T) {
+	in := make(Bi)
+	go func() {
+		for i := 0; i < 10; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	drainChannel(in, 0)
+
+	_, ok := <-in
+	require.False(t, ok)
+}
+
+func TestDrainChannelAsync(t *testing.T) {
+	in := make(Bi)
+	go func() {
+		for i := 0; i < 10; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	drainChannel(in, 1)
+
+	time.Sleep(sleepPerStage)
+
+	_, ok := <-in
+	require.False(t, ok)
 }
