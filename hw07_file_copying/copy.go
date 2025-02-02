@@ -28,8 +28,7 @@ func doCopy(inFp, outFp *os.File, limit int64) (err error) {
 			buffer = buffer[0:toRead]
 		}
 		nread, err := inFp.Read(buffer)
-		if err == io.EOF || nread == 0 {
-			// EOF
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
