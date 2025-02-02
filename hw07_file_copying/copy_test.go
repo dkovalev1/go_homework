@@ -75,8 +75,8 @@ func TestCopy_6000_1000(t *testing.T) {
 func testCopy(t *testing.T, offset, limit int64) {
 	t.Helper()
 
-	test := fmt.Sprintf("testdata\\test_offset%d_limit%d.txt", offset, limit)
-	etalon := fmt.Sprintf("testdata\\out_offset%d_limit%d.txt", offset, limit)
+	test := fmt.Sprintf("testdata/test_offset%d_limit%d.txt", offset, limit)
+	etalon := fmt.Sprintf("testdata/out_offset%d_limit%d.txt", offset, limit)
 
 	err := Copy(inputFile, test, offset, limit)
 	require.NoError(t, err)

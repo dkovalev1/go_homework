@@ -23,14 +23,18 @@ func doCopy(inFp, outFp *os.File, limit int64) (err error) {
 	bar := pb.StartNew(int(limit))
 
 	for copied < limit {
-		nread, err := inFp.Read(buffer)
-		if err != nil {
-			return err
+		toRead := min(blocksize, limit-copied)
+		if toRead < int64(len(buffer)) {
+			buffer = buffer[0:toRead]
 		}
-
-		if nread == 0 {
+		nread, err := inFp.Read(buffer)
+		if err == io.EOF || nread == 0 {
 			// EOF
 			break
+		}
+
+		if err != nil {
+			return err
 		}
 
 		if nread < len(buffer) {
