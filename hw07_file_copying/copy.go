@@ -67,6 +67,15 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	defer fromFp.Close()
 
+	// Check offset
+	fileSize, err := fromFp.Seek(0, io.SeekEnd)
+	if err != nil {
+		return err
+	}
+	if fileSize < offset {
+		return ErrOffsetExceedsFileSize
+	}
+
 	if limit == 0 {
 		limit, err = fromFp.Seek(0, io.SeekEnd)
 		if err != nil {

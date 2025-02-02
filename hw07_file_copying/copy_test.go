@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"testing"
 
@@ -46,6 +47,30 @@ func compareFiles(file1, file2 string) bool {
 			return false
 		}
 	}
+}
+
+func TestWrongInput(t *testing.T) {
+	err := Copy("", "", 0, 0)
+	require.Error(t, err)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+func TestWrongOutput(t *testing.T) {
+	err := Copy(inputFile, "", 0, 0)
+	require.Error(t, err)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+func TestImpossibleOffset(t *testing.T) {
+	err := Copy(inputFile, "", 10000, 0)
+	require.Error(t, err)
+	require.ErrorIs(t, err, ErrOffsetExceedsFileSize)
+}
+
+func TestFileUnknownLength(t *testing.T) {
+	err := Copy("/dev/urandom", "", 10, 0)
+	require.Error(t, err)
+	require.ErrorIs(t, err, ErrOffsetExceedsFileSize)
 }
 
 func TestCopy_0_0(t *testing.T) {
