@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -6,7 +7,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:all
 )
 
 func TestGetDomainStat(t *testing.T) {
@@ -35,5 +36,27 @@ func TestGetDomainStat(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
+	})
+}
+
+func TestGetDomainStatInvalidEmails(t *testing.T) {
+	data := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"invalid_email","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
+{"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"another_bad_email","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}`
+
+	t.Run("invalid emails", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(data), "com")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+}
+
+func TestGetDomainStatJSONError(t *testing.T) {
+	// Missing closing bracket to simulate JSON parsing error
+	data := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"`
+
+	t.Run("JSON parsing error", func(t *testing.T) {
+		_, err := GetDomainStat(bytes.NewBufferString(data), "com")
+		require.Error(t, err)
+		require.EqualError(t, err, "get users error: \"Syntax error no sources available, the input json is empty: errors.SyntaxError{Pos:172, Src:\\\"\\\", Code:0x0, Msg:\\\"\\\"}\"")
 	})
 }
