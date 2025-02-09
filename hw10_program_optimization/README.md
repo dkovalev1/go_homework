@@ -50,3 +50,37 @@ go test -v -count=1 -timeout=30s -tags bench .
 - Работа с сырыми байтами, нахождение позиции `"Email"` и пр. вместо ускорения анмаршалинга более поддерживаемыми и понятными средствами.
 
 #### Зачёт от 7 баллов
+
+#### Результат оптимизации
+
+Программа была запущена командой:
+
+```
+go test -v -count=1 -timeout=30s -tags bench .
+```
+
+До оптимищации:
+```
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 408.524274ms / 300ms
+    stats_optimization_test.go:47: memory used: 308Mb / 30Mb
+    assertion_compare.go:332: 
+                Error Trace:    stats_optimization_test.go:49
+                Error:          "408524274" is not less than "300000000"
+                Test:           TestGetDomainStat_Time_And_Memory
+                Messages:       [the program is too slow]
+--- FAIL: TestGetDomainStat_Time_And_Memory (9.18s)
+FAIL
+FAIL    github.com/fixme_my_friend/hw10_program_optimization    9.189s
+FAIL
+```
+
+После оптимизации:
+```
+=== RUN   TestGetDomainStat_Time_And_Memory
+    stats_optimization_test.go:46: time used: 120.279223ms / 300ms
+    stats_optimization_test.go:47: memory used: 18Mb / 30Mb
+--- PASS: TestGetDomainStat_Time_And_Memory (1.32s)
+PASS
+ok      github.com/dkovalev1/go_homework/hw10_program_optimization      1.328s
+```
