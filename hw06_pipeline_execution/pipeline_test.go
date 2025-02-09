@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint
 )
 
 const (
@@ -150,6 +150,37 @@ func TestAllStageStop(t *testing.T) {
 		wg.Wait()
 
 		require.Len(t, result, 0)
-
 	})
+}
+
+func TestDrainChannel(t *testing.T) {
+	in := make(Bi)
+	go func() {
+		for i := 0; i < 10; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	drainChannel(in, 0)
+
+	_, ok := <-in
+	require.False(t, ok)
+}
+
+func TestDrainChannelAsync(t *testing.T) {
+	in := make(Bi)
+	go func() {
+		for i := 0; i < 10; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	drainChannel(in, 1)
+
+	time.Sleep(sleepPerStage)
+
+	_, ok := <-in
+	require.False(t, ok)
 }
