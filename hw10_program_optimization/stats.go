@@ -1,12 +1,13 @@
 package hw10programoptimization
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"regexp"
 	"strings"
 
-	"github.com/bytedance/sonic"
+	"github.com/bytedance/sonic" //nolint:all
 )
 
 type User struct {
@@ -39,7 +40,7 @@ func getUsers(r io.Reader) (result users, err error) {
 
 	for {
 		if err = dec.Decode(&user); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				err = nil
 			}
 			return
@@ -53,7 +54,6 @@ func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 
 	reg, err := regexp.Compile("\\." + domain)
-
 	if err != nil {
 		return nil, err
 	}
