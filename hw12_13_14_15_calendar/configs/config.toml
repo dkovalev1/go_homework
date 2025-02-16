@@ -1,5 +1,7 @@
 [logger]
 level = "INFO"
 
-# TODO
-# ...
+[storage]
+type = "SQL" # IM or SQL
+connstr = "user=foo dbname=bar sslmode=disable"
+
