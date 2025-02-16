@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"     //nolint
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage" //nolint
 )
 

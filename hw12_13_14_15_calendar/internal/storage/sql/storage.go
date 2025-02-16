@@ -6,11 +6,11 @@ import (
 
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"     //nolint
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage" //nolint
-
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/jmoiron/sqlx"                                                  //nolint
+	_ "github.com/lib/pq"                                                      //nolint
 )
 
+/*
 var schema = `
 CREATE TABLE event (
 	id          text PRIMARY KEY,
@@ -22,6 +22,7 @@ CREATE TABLE event (
 	NotifyTime  int -- in seconds
 );
 )`
+*/
 
 type StorageSQL struct { // TODO
 	db *sqlx.DB
@@ -78,7 +79,6 @@ SELECT id, title, starttime, duration, description, userid, notifytime
 FROM event
 WHERE starttime >= $1 AND starttime < $2`,
 		start, end)
-
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +86,10 @@ WHERE starttime >= $1 AND starttime < $2`,
 	return events, err
 }
 
-func (s *StorageSQL) GetAllEventsWeek(week time.Time) ([]storage.Event, error) {
+func (s *StorageSQL) GetAllEventsWeek(_ time.Time) ([]storage.Event, error) {
 	return nil, app.ErrNotImpl
 }
 
-func (s *StorageSQL) GetAllEventsMonth(month time.Time) ([]storage.Event, error) {
+func (s *StorageSQL) GetAllEventsMonth(_ time.Time) ([]storage.Event, error) {
 	return nil, app.ErrNotImpl
 }
