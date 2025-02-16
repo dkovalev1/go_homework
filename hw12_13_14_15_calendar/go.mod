@@ -1,6 +1,6 @@
 module github.com/dkovalev1/go_homework/hw12_13_14_15_calendar
 
-go 1.22
+go 1.23
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
