@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"     //nolint
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage" //nolint
 	"github.com/stretchr/testify/require"                                      //nolint
 )
@@ -92,7 +93,7 @@ func TestStorage(t *testing.T) {
 			ID: testEventID,
 		})
 		require.Error(t, err)
-		require.ErrorIs(t, err, ErrNotFound)
+		require.ErrorIs(t, err, app.ErrNotFound)
 		require.Empty(t, s.events)
 	})
 

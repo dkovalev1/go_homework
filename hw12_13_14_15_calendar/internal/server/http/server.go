@@ -22,7 +22,7 @@ type handler struct { // TODO
 	log *logger.Logger
 }
 
-func (h *handler) info(w http.ResponseWriter, r *http.Request) { // TODO
+func (h *handler) info(w http.ResponseWriter, _ *http.Request) { // TODO
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("ok\n"))
