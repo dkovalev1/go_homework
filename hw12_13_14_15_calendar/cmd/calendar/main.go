@@ -8,10 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"                          //nolint
+	logger "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"                //nolint
+	internalhttp "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/server/http"     //nolint
+	memorystorage "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage/memory" //nolint
+	sqlstorage "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage/sql"       //nolint
 )
 
 var configFile string
@@ -28,10 +29,20 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
+	config := NewConfig(configFile)
 	logg := logger.New(config.Logger.Level)
 
-	storage := memorystorage.New()
+	var storage app.Storage
+	switch config.Storage.Type {
+	case "IM":
+		storage = memorystorage.New()
+	case "SQL":
+		storage = sqlstorage.New(config.Storage.Connstr)
+	default:
+		logg.Error("unknown storage type: " + config.Storage.Type)
+		os.Exit(1)
+	}
+
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)
