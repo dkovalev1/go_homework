@@ -81,7 +81,7 @@ jobs:
         working-directory: hw12_13_14_15_calendar
 
       - name: Start the stack
-        run: docker-compose up -d
+        run: docker compose up -d
         working-directory: hw12_13_14_15_calendar/deployments
 
       - name: make test
