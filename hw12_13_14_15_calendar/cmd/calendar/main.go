@@ -47,7 +47,7 @@ func main() {
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)
-	grpc_server := internalgrpc.NewService(calendar)
+	grpcServer := internalgrpc.NewService(logg, calendar.Storage)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -63,7 +63,7 @@ func main() {
 			logg.Error("failed to stop http server: " + err.Error())
 		}
 
-		if err := grpc_server.Stop(ctx); err != nil {
+		if err := grpcServer.Stop(); err != nil {
 			logg.Error("failed to stop grpc server: " + err.Error())
 		}
 	}()
@@ -76,9 +76,9 @@ func main() {
 		os.Exit(1) //nolint:gocritic
 	}
 
-	if err := grpc_server.Start(ctx); err != nil {
+	if err := grpcServer.Start(); err != nil {
 		logg.Error("failed to start grpc server: " + err.Error())
 		cancel()
-		os.Exit(1) //nolint:gocritic
+		os.Exit(1)
 	}
 }

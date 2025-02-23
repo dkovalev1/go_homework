@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	calendarpb "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/api"
-	app "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"
+	calendarpb "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/api"                        //nolint
+	app "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"                      //nolint
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"                       //nolint
 	memorystorage "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage/memory" //nolint
 	"github.com/stretchr/testify/require"                                                           //nolint
@@ -25,12 +25,12 @@ type testContext struct {
 func setUp(t *testing.T) *testContext {
 	t.Helper()
 
-	test_logger := logger.New("debug")
-	test_storage := memorystorage.New()
+	testLogger := logger.New("debug")
+	testStorage := memorystorage.New()
 
-	test_server := NewService(test_logger, test_storage)
+	testServer := NewService(testLogger, testStorage)
 
-	err := test_server.Start()
+	err := testServer.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,8 +43,8 @@ func setUp(t *testing.T) *testContext {
 	client := calendarpb.NewCalendarClient(conn)
 
 	return &testContext{
-		storage: test_storage,
-		server:  test_server,
+		storage: testStorage,
+		server:  testServer,
 		client:  client,
 	}
 }
