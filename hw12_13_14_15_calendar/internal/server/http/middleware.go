@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	logger "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"
+	logger "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger" //nolint
 )
 
 func logRequest(r *http.Request, duration time.Duration, logger *logger.Logger) {
