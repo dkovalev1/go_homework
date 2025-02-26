@@ -35,7 +35,7 @@ func (h *handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) { // TODO
 func NewServer(logger *logger.Logger, _ Application) *Server {
 	h := &handler{log: logger}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/info", loggingMiddleware(h.info))
+	mux.HandleFunc("/info", loggingMiddleware(logger, h.info))
 
 	return &Server{
 		log: logger,
