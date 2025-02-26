@@ -6,8 +6,9 @@ import (
 
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"     //nolint
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage" //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/migrations"       //nolint
+	_ "github.com/jackc/pgx/v5/stdlib"                                         //nolint
 	"github.com/jmoiron/sqlx"                                                  //nolint
-	_ "github.com/lib/pq"                                                      //nolint
 )
 
 /*
@@ -33,6 +34,8 @@ func New(connstr string) *StorageSQL {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	migrations.Migrate(db.DB)
 
 	return &StorageSQL{
 		db: db,
@@ -64,7 +67,19 @@ WHERE id=$1`,
 }
 
 func (s *StorageSQL) DeleteEvent(event storage.Event) error {
-	_, err := s.db.Exec("DELETE FROM event WHERE id=$1", event.ID)
+	r, err := s.db.Exec("DELETE FROM event WHERE id=$1", event.ID)
+	if err != nil {
+		return err
+	}
+
+	nrows, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nrows == 0 {
+		return app.ErrNotFound
+	}
 
 	return err
 }
