@@ -2,6 +2,7 @@ package internalgrpc
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
@@ -19,6 +20,7 @@ type CalendarService struct {
 	storage app.Storage
 	lsn     net.Listener
 	server  *grpc.Server
+	logger  *logger.Logger
 }
 
 func makeEvent(req *calendarpb.Event) storage.Event {
@@ -132,29 +134,30 @@ func (cs *CalendarService) GetAllEventsMonth(_ context.Context, req *calendarpb.
 	}, nil
 }
 
-type CallLogger func(req interface{}) error
+// func UnaryServerRequestValidatorInterceptor(logger CallLogger) grpc.UnaryServerInterceptor {
+// 	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo,
+// 		handler grpc.UnaryHandler,
+// 	) (interface{}, error) {
+// 		logger(req)
+// 		return handler(ctx, req)
+// 	}
+// }
 
-func UnaryServerRequestValidatorInterceptor(logger CallLogger) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (interface{}, error) {
-		logger(req)
-		return handler(ctx, req)
-	}
-}
-
-func NewService(_ *logger.Logger, storage app.Storage) *CalendarService {
+func NewService(port int, logger *logger.Logger, storage app.Storage) *CalendarService {
 	// For educational project let's relax security requirements for now and bind
 	// to all interfaces.
-	lsn, err := net.Listen("tcp", ":50051") //nolint
+	address := fmt.Sprintf(":%d", port)
+	lsn, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	grpcLogger := CallLogger{logger: logger}
+
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(callLogger),
+		grpc.UnaryInterceptor(grpcLogger.logCall),
 	)
-	ret := &CalendarService{server: server, storage: storage, lsn: lsn}
+	ret := &CalendarService{server: server, storage: storage, lsn: lsn, logger: logger}
 
 	calendarpb.RegisterCalendarServer(server, ret)
 
@@ -172,7 +175,9 @@ func RunServer(server *CalendarService) {
 }
 
 func (cs *CalendarService) Start() error {
-	log.Printf("starting grpc server on %s", cs.lsn.Addr().String())
+	cs.logger.Info(
+		fmt.Sprintf("starting grpc server on %s", cs.lsn.Addr().String()),
+	)
 
 	go func() {
 		cs.server.Serve(cs.lsn)

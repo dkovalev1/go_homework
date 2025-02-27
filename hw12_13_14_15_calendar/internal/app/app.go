@@ -36,8 +36,5 @@ func New(logger *logger.Logger, storage Storage) *App {
 }
 
 func (a *App) CreateEvent(_ context.Context, id, title string) error {
-	// TODO
 	return a.Storage.CreateEvent(storage.Event{ID: id, Title: title})
 }
-
-// TODO
