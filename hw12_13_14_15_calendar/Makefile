@@ -1,11 +1,23 @@
-BIN := "./bin/calendar"
+BIN:=./bin/calendar
+BIN_SENDER:=./bin/sender
+BIN_SCHEDULER:=./bin/scheduler
+
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-build:
+build: BIN BIN_SENDER BIN_SCHEDULER
+	echo "building..."
+
+BIN:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+
+BIN_SENDER:
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
+
+BIN_SCHEDULER:	
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/scheduler
 
 run: build
 	$(BIN) -config ./configs/config.toml

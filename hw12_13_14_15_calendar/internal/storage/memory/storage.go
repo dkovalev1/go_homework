@@ -14,6 +14,16 @@ type StorageIM struct {
 	events map[string]storage.Event
 }
 
+// DeleteEventOlderThan implements app.Storage.
+func (s *StorageIM) DeleteEventOlderThan(time.Time) error {
+	panic("unimplemented")
+}
+
+// GetAllCurrentEvents implements app.Storage.
+func (s *StorageIM) GetAllCurrentEvents() ([]storage.Event, error) {
+	panic("unimplemented")
+}
+
 func New() *StorageIM {
 	return &StorageIM{
 		mu:     sync.RWMutex{},

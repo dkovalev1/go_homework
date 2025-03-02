@@ -26,6 +26,8 @@ type Storage interface { // TODO
 	GetAllEventsDay(time.Time) ([]storage.Event, error)
 	GetAllEventsWeek(time.Time) ([]storage.Event, error)
 	GetAllEventsMonth(time.Time) ([]storage.Event, error)
+	GetAllCurrentEvents() ([]storage.Event, error)
+	DeleteEventOlderThan(time.Time) error
 }
 
 func New(logger *logger.Logger, storage Storage) *App {

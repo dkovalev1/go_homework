@@ -25,8 +25,18 @@ CREATE TABLE event (
 )`
 */
 
-type StorageSQL struct { // TODO
+type StorageSQL struct {
 	db *sqlx.DB
+}
+
+// DeleteEventOlderThan implements app.Storage.
+func (s *StorageSQL) DeleteEventOlderThan(time.Time) error {
+	panic("unimplemented")
+}
+
+// GetAllCurrentEvents implements app.Storage.
+func (s *StorageSQL) GetAllCurrentEvents() ([]storage.Event, error) {
+	panic("unimplemented")
 }
 
 func New(connstr string) *StorageSQL {
