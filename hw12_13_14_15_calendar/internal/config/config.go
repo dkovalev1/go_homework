@@ -13,7 +13,7 @@ import (
 type Config struct {
 	Logger   LoggerConf
 	Storage  StorageConf
-	RabbitMQ SchedulerConf
+	RabbitMQ RabbitConf
 	// TODO
 }
 
@@ -28,7 +28,7 @@ type StorageConf struct {
 	// TODO
 }
 
-type SchedulerConf struct {
+type RabbitConf struct {
 	Connstr    string
 	Interval   time.Duration
 	KeepEvents time.Duration
