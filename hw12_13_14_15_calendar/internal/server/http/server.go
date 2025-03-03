@@ -59,15 +59,8 @@ func (h *handler) createEvent(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *handler) deleteEvent(w http.ResponseWriter, req *http.Request) {
-	decoder := json.NewDecoder(req.Body)
-	var event storage.Event
-	err := decoder.Decode(&event)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	err = h.storage.DeleteEvent(event)
+	id := req.PathValue("id")
+	err := h.storage.DeleteEvent(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -102,16 +95,9 @@ type TimeRequest struct {
 
 type eventSelector func(time.Time) ([]storage.Event, error)
 
-func (h *handler) getAllEvents(w http.ResponseWriter, req *http.Request, selector eventSelector) {
-	decoder := json.NewDecoder(req.Body)
-	var request TimeRequest
-	err := decoder.Decode(&request)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	events, err := selector(request.Time)
+func (h *handler) getAllEvents(w http.ResponseWriter, selector eventSelector) {
+	now := time.Now()
+	events, err := selector(now)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -126,16 +112,20 @@ func (h *handler) getAllEvents(w http.ResponseWriter, req *http.Request, selecto
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *handler) getAllEventsDay(w http.ResponseWriter, req *http.Request) {
-	h.getAllEvents(w, req, h.storage.GetAllEventsDay)
-}
+func (h *handler) getEvents(w http.ResponseWriter, req *http.Request) {
+	interval := req.PathValue("interval")
 
-func (h *handler) getAllEventsMonth(w http.ResponseWriter, req *http.Request) {
-	h.getAllEvents(w, req, h.storage.GetAllEventsMonth)
-}
-
-func (h *handler) getAllEventsWeek(w http.ResponseWriter, req *http.Request) {
-	h.getAllEvents(w, req, h.storage.GetAllEventsWeek)
+	switch interval {
+	case "day":
+		h.getAllEvents(w, h.storage.GetAllEventsDay)
+	case "week":
+		h.getAllEvents(w, h.storage.GetAllEventsWeek)
+	case "month":
+		h.getAllEvents(w, h.storage.GetAllEventsMonth)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("unknown interval"))
+	}
 }
 
 func (h *handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) { // TODO
@@ -145,15 +135,14 @@ func (h *handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) { // TODO
 func NewServer(port int, logger *logger.Logger, storage app.Storage) *Server {
 	h := &handler{log: logger, storage: storage}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", loggingMiddleware(logger, h.info))
-	mux.HandleFunc("/info", loggingMiddleware(logger, h.info))
-	mux.HandleFunc("/hello", loggingMiddleware(logger, h.info))
-	mux.HandleFunc("/createevent", loggingMiddleware(logger, h.createEvent))
-	mux.HandleFunc("/updateevent", loggingMiddleware(logger, h.updateEvent))
-	mux.HandleFunc("/deleteevent", loggingMiddleware(logger, h.deleteEvent))
-	mux.HandleFunc("/getalleventsday", loggingMiddleware(logger, h.getAllEventsDay))
-	mux.HandleFunc("/getalleventsweek", loggingMiddleware(logger, h.getAllEventsWeek))
-	mux.HandleFunc("/getalleventsmonth", loggingMiddleware(logger, h.getAllEventsMonth))
+	mux.HandleFunc("GET /", loggingMiddleware(logger, h.info))
+	mux.HandleFunc("GET /info", loggingMiddleware(logger, h.info))
+	mux.HandleFunc("GET /hello", loggingMiddleware(logger, h.info))
+
+	mux.HandleFunc("PUT /event", loggingMiddleware(logger, h.createEvent))
+	mux.HandleFunc("POST /event", loggingMiddleware(logger, h.updateEvent))
+	mux.HandleFunc("DELETE /event/{id}", loggingMiddleware(logger, h.deleteEvent))
+	mux.HandleFunc("GET /event/{interval}", loggingMiddleware(logger, h.getEvents))
 
 	ctx, cancelCtx := context.WithCancel(context.Background())
 

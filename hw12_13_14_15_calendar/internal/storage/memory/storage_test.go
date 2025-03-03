@@ -83,15 +83,11 @@ func TestStorage(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = s.DeleteEvent(storage.Event{
-			ID: testEventID,
-		})
+		err = s.DeleteEvent(testEventID)
 		require.NoError(t, err)
 		require.Empty(t, s.events)
 
-		err = s.DeleteEvent(storage.Event{
-			ID: testEventID,
-		})
+		err = s.DeleteEvent(testEventID)
 		require.Error(t, err)
 		require.ErrorIs(t, err, app.ErrNotFound)
 		require.Empty(t, s.events)

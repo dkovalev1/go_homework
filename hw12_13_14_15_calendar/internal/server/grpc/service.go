@@ -78,8 +78,8 @@ func (cs *CalendarService) UpdateEvent(_ context.Context, req *calendarpb.Event)
 	return &calendarpb.Result{IsOk: true}, nil
 }
 
-func (cs *CalendarService) DeleteEvent(_ context.Context, req *calendarpb.Event) (*calendarpb.Result, error) {
-	err := cs.storage.DeleteEvent(makeEvent(req))
+func (cs *CalendarService) DeleteEvent(_ context.Context, req *calendarpb.EventId) (*calendarpb.Result, error) {
+	err := cs.storage.DeleteEvent(req.Id)
 	if err != nil {
 		errmsg := err.Error()
 		return &calendarpb.Result{

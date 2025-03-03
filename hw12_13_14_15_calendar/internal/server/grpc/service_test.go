@@ -115,8 +115,8 @@ func TestServiceGRPC(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, result.IsOk)
 
-		result, err = ctx.client.DeleteEvent(context.Background(), &calendarpb.Event{
-			ID: "1",
+		result, err = ctx.client.DeleteEvent(context.Background(), &calendarpb.EventId{
+			Id: "1",
 		})
 		require.NoError(t, err)
 		require.True(t, result.IsOk)

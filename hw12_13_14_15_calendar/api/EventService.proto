@@ -12,13 +12,17 @@ service calendar {
 
 	rpc UpdateEvent(Event) returns (Result) {}
 
-	rpc DeleteEvent(Event) returns (Result) {}
+	rpc DeleteEvent(EventId) returns (Result) {}
 
 	rpc GetAllEventsDay(TimeSpec) returns (Result) {}
 
 	rpc GetAllEventsWeek(TimeSpec) returns (Result) {}
 
 	rpc GetAllEventsMonth(TimeSpec) returns (Result) {}
+}
+
+message EventId {
+	string id = 1;
 }
 
 message TimeSpec {

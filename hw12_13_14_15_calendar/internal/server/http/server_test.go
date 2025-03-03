@@ -77,11 +77,11 @@ func testCreateEvent(t *testing.T, testC *testContext, eventStart time.Time) {
 	t.Helper()
 	client := &http.Client{}
 	b := makeTestEvent(t, eventID, eventTitle, eventStart)
-	url := fmt.Sprintf("%s/createevent", testC.ts.URL)
+	url := fmt.Sprintf("%s/event", testC.ts.URL)
 
 	ctx := context.Background()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(b))
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, bytes.NewBuffer(b))
 	require.NoError(t, err)
 
 	resp, err := client.Do(req)
@@ -95,8 +95,8 @@ func testCreateEvent(t *testing.T, testC *testContext, eventStart time.Time) {
 	require.Equal(t, body, []byte("ok\n"))
 }
 
-func TestServiceREST(t *testing.T) {
-	eventStart := time.Now()
+func TestServiceREST(t *testing.T) { //nolint:funlen
+	eventStart := time.Now().Add(1 * time.Hour)
 	client := &http.Client{}
 
 	t.Run("CreateEvent", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestServiceREST(t *testing.T) {
 		testCreateEvent(t, testC, eventStart)
 
 		// update test event
-		url := fmt.Sprintf("%s/updateevent", testC.ts.URL)
+		url := fmt.Sprintf("%s/event", testC.ts.URL)
 		b := makeTestEvent(t, eventID, "updated title", eventStart)
 		req, err := http.NewRequestWithContext(context.Background(), "POST", url, bytes.NewBuffer(b))
 		require.NoError(t, err)
@@ -155,9 +155,9 @@ func TestServiceREST(t *testing.T) {
 		testCreateEvent(t, testC, eventStart)
 
 		// delete test event
-		url := fmt.Sprintf("%s/deleteevent", testC.ts.URL)
-		b := makeTestEvent(t, eventID, "", time.Time{})
-		req, err := http.NewRequestWithContext(context.Background(), "POST", url, bytes.NewBuffer(b))
+		url := fmt.Sprintf("%s/event/%s", testC.ts.URL, eventID)
+
+		req, err := http.NewRequestWithContext(context.Background(), "DELETE", url, nil)
 		require.NoError(t, err)
 
 		resp, err := client.Do(req)
@@ -182,7 +182,26 @@ func TestServiceREST(t *testing.T) {
 
 		testCreateEvent(t, testC, eventStart)
 
-		events, err := testC.storage.GetAllEventsDay(time.Now().Add(-1 * time.Hour))
+		events, err := testC.storage.GetAllEventsDay(time.Now())
+		require.NoError(t, err)
+		require.Equal(t, 1, len(events))
+		require.Equal(t, events[0].ID, eventID)
+		require.Equal(t, events[0].Title, eventTitle)
+		require.True(t, eventStart.Equal(events[0].StartTime))
+
+		url := fmt.Sprintf("%s/event/day", testC.ts.URL)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
+		require.NoError(t, err)
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, "200 OK", resp.Status)
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		err = json.Unmarshal(body, &events)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(events))
 		require.Equal(t, events[0].ID, eventID)
@@ -203,6 +222,25 @@ func TestServiceREST(t *testing.T) {
 		require.Equal(t, events[0].ID, eventID)
 		require.Equal(t, events[0].Title, eventTitle)
 		require.True(t, eventStart.Equal(events[0].StartTime))
+
+		url := fmt.Sprintf("%s/event/week", testC.ts.URL)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
+		require.NoError(t, err)
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, "200 OK", resp.Status)
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		err = json.Unmarshal(body, &events)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(events))
+		require.Equal(t, events[0].ID, eventID)
+		require.Equal(t, events[0].Title, eventTitle)
+		require.True(t, eventStart.Equal(events[0].StartTime))
 	})
 	t.Run("GetAllEventsMonth", func(t *testing.T) {
 		testC := setUp(t)
@@ -212,6 +250,25 @@ func TestServiceREST(t *testing.T) {
 		testCreateEvent(t, testC, eventStart)
 
 		events, err := testC.storage.GetAllEventsMonth(time.Now().Add(-1 * time.Hour))
+		require.NoError(t, err)
+		require.Equal(t, 1, len(events))
+		require.Equal(t, events[0].ID, eventID)
+		require.Equal(t, events[0].Title, eventTitle)
+		require.True(t, eventStart.Equal(events[0].StartTime))
+
+		url := fmt.Sprintf("%s/event/month", testC.ts.URL)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
+		require.NoError(t, err)
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		require.Equal(t, "200 OK", resp.Status)
+		body, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		err = json.Unmarshal(body, &events)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(events))
 		require.Equal(t, events[0].ID, eventID)

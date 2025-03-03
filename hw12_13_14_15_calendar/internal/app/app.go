@@ -22,7 +22,7 @@ type App struct { // TODO
 type Storage interface { // TODO
 	CreateEvent(storage.Event) error
 	UpdateEvent(storage.Event) error
-	DeleteEvent(storage.Event) error
+	DeleteEvent(string) error
 	GetAllEventsDay(time.Time) ([]storage.Event, error)
 	GetAllEventsWeek(time.Time) ([]storage.Event, error)
 	GetAllEventsMonth(time.Time) ([]storage.Event, error)
