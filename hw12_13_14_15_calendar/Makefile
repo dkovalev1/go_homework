@@ -1,7 +1,6 @@
 BIN:=./bin/calendar
 BIN_SENDER:=./bin/sender
 BIN_SCHEDULER:=./bin/scheduler
-GINKGO=ginkgo
 GINKGO_FLAGS := -r --keep-going --randomize-suites --randomize-all --no-color
 
 DOCKER_IMG="calendar:develop"
@@ -49,7 +48,7 @@ test: compose-up integration end_to_end
 integration: compose-up
 	go test -race ./internal/... ./pkg/...
 
-end_to_end : compose-up $(GINKGO)
+end_to_end : compose-up
 	ginkgo $(GINKGO_FLAGS) --timeout=5m --poll-progress-after=0s end_to_end 2>&1
 
 install-lint-deps:
