@@ -10,17 +10,14 @@ import (
 	"os/exec"
 	"time"
 
-	//nolint
-	"github.com/jackc/pgx/v5"
-	. "github.com/onsi/ginkgo/v2"
-	"github.com/onsi/gomega/gbytes"
-	"github.com/onsi/gomega/gexec"
-
-	. "github.com/onsi/gomega"
+	"github.com/jackc/pgx/v5"       //nolint
+	. "github.com/onsi/ginkgo/v2"   //nolint
+	. "github.com/onsi/gomega"      //nolint
+	"github.com/onsi/gomega/gbytes" //nolint
+	"github.com/onsi/gomega/gexec"  //nolint
 )
 
 var (
-	// calendarCmd *exec.Cmd
 	calendar  = "./bin/calendar"
 	scheduler = "./bin/scheduler"
 	sender    = "./bin/sender"
@@ -112,19 +109,19 @@ func checkStop(session *gexec.Session) {
 
 var _ = Describe("End to End plugin tests", func() {
 	Describe("Start", func() {
-		It("should start calendar", func(ctx SpecContext) {
+		It("should start calendar", func(_ SpecContext) {
 			session := checkStart(calendar, "--config=configs/config.toml", `\[INFO\] starting grpc server on \[::\]:8081`)
 			time.Sleep(time.Millisecond * 200)
 			checkStop(session)
 		}, SpecTimeout(time.Second*3))
 
-		It("should start scheduler", func(ctx SpecContext) {
+		It("should start scheduler", func(_ SpecContext) {
 			session := checkStart(scheduler, "--config=configs/scheduler.toml", `\[INFO\] Scheduler started`)
 			time.Sleep(time.Millisecond * 200)
 			checkStop(session)
 		}, SpecTimeout(time.Second*3))
 
-		It("should start sender", func(ctx SpecContext) {
+		It("should start sender", func(_ SpecContext) {
 			session := checkStart(sender, "--config=configs/sender.toml", `\[INFO\] Sender started`)
 			time.Sleep(time.Millisecond * 200)
 			checkStop(session)
@@ -136,15 +133,15 @@ var _ = Describe("End to End plugin tests", func() {
 		var schedulerSession *gexec.Session
 		var senderSession *gexec.Session
 
-		BeforeEach(func(ctx SpecContext) {
-
+		BeforeEach(func() {
 			cleanupDatabase()
 
-			calendarSession = checkStart(calendar, "--config=configs/config.toml", `\[INFO\] starting grpc server on \[::\]:8081`)
+			calendarSession = checkStart(calendar, "--config=configs/config.toml",
+				`\[INFO\] starting grpc server on \[::\]:8081`)
 			schedulerSession = checkStart(scheduler, "--config=configs/scheduler.toml", `\[INFO\] Scheduler started`)
 			senderSession = checkStart(sender, "--config=configs/sender.toml", `\[INFO\] Sender started`)
 		})
-		AfterEach(func(ctx SpecContext) {
+		AfterEach(func() {
 			checkStop(calendarSession)
 			checkStop(senderSession)
 			checkStop(schedulerSession)
@@ -152,13 +149,13 @@ var _ = Describe("End to End plugin tests", func() {
 			cleanupDatabase()
 		})
 
-		It("can start all services", func(ctx SpecContext) {
+		It("can start all services", func(_ SpecContext) {
 			Expect(calendarSession).NotTo(BeNil())
 			Expect(schedulerSession).NotTo(BeNil())
 			Expect(senderSession).NotTo(BeNil())
 		}, SpecTimeout(time.Second*3))
 
-		It("can accept event", func(ctx SpecContext) {
+		It("can accept event", func(_ SpecContext) {
 			testCreateEvent(time.Now().Add(time.Hour))
 
 			Eventually(calendarSession).Should(gbytes.Say(`PUT /event`))
