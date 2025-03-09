@@ -49,14 +49,14 @@ func (s *StorageIM) UpdateEvent(ev storage.Event) error {
 	return nil
 }
 
-func (s *StorageIM) DeleteEvent(ev storage.Event) error {
+func (s *StorageIM) DeleteEvent(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if _, ok := s.events[ev.ID]; !ok {
+	if _, ok := s.events[id]; !ok {
 		return app.ErrNotFound
 	}
-	delete(s.events, ev.ID)
+	delete(s.events, id)
 
 	return nil
 }

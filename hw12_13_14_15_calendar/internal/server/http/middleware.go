@@ -24,12 +24,9 @@ func logRequest(r *http.Request, duration time.Duration, logger *logger.Logger) 
 
 func loggingMiddleware(logger *logger.Logger, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO
 		start := time.Now()
 		next(w, r)
-
 		duration := time.Since(start)
-
 		logRequest(r, duration, logger)
 	})
 }
