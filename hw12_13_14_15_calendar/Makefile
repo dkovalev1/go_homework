@@ -48,8 +48,11 @@ test: compose-up integration end_to_end
 integration: compose-up
 	go test -race ./internal/... ./pkg/...
 
-end_to_end : compose-up
+end_to_end : install-ginkgo compose-up 
 	ginkgo $(GINKGO_FLAGS) --timeout=5m --poll-progress-after=0s end_to_end 2>&1
+
+install-ginkgo:
+	go install github.com/onsi/ginkgo/v2/ginkgo
 
 install-lint-deps:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
