@@ -75,4 +75,5 @@ func main() {
 	if err := grpcServer.Stop(); err != nil {
 		logg.Error("failed to stop grpc server: " + err.Error())
 	}
+	os.Exit(0)
 }

@@ -19,13 +19,16 @@ type App struct { // TODO
 	Storage Storage
 }
 
-type Storage interface { // TODO
+type Storage interface {
 	CreateEvent(storage.Event) error
 	UpdateEvent(storage.Event) error
 	DeleteEvent(string) error
 	GetAllEventsDay(time.Time) ([]storage.Event, error)
 	GetAllEventsWeek(time.Time) ([]storage.Event, error)
 	GetAllEventsMonth(time.Time) ([]storage.Event, error)
+	GetUpcomingEvents(time.Time) ([]storage.Event, error)
+	MarkEventAsNotificationSent(string) error
+	DeleteEventOlderThan(time.Time) error
 }
 
 func New(logger *logger.Logger, storage Storage) *App {

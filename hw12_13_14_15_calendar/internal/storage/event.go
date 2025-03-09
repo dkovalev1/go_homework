@@ -13,11 +13,12 @@ import "time"
 * За сколько времени высылать уведомление, опционально.
 */
 type Event struct {
-	ID          string        `db:"id"`
-	Title       string        `db:"title"`
-	StartTime   time.Time     `db:"starttime"`
-	Duration    time.Duration `db:"duration"`
-	Description string        `db:"description"`
-	UserID      int64         `db:"userid"`
-	NotifyTime  time.Duration `db:"notifytime"`
+	ID               string        `db:"id"`
+	Title            string        `db:"title"`
+	StartTime        time.Time     `db:"starttime"`
+	Duration         time.Duration `db:"duration"`
+	Description      string        `db:"description"`
+	UserID           int64         `db:"userid"`
+	NotifyTime       time.Duration `db:"notifytime"`
+	NotificationSent bool          `db:"notification_sent"`
 }

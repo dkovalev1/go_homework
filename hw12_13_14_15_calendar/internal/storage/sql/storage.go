@@ -11,22 +11,51 @@ import (
 	"github.com/jmoiron/sqlx"                                                  //nolint
 )
 
-/*
-var schema = `
-CREATE TABLE event (
-	id          text PRIMARY KEY,
-	title       string,
-	starttime   time,
-	duration    int, -- in seconds
-	description string
-	userid      int64
-	NotifyTime  int -- in seconds
-);
-)`
-*/
-
-type StorageSQL struct { // TODO
+type StorageSQL struct {
 	db *sqlx.DB
+}
+
+// MarkEventAsNotificationSent implements app.Storage.
+func (s *StorageSQL) MarkEventAsNotificationSent(id string) error {
+	result, err := s.db.Exec("UPDATE event SET notification_sent=true WHERE id=$1", id)
+	if err != nil {
+		return err
+	}
+
+	nrows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if nrows == 0 {
+		return app.ErrNotFound
+	} else if nrows > 1 {
+		// id is expected to be primary key, having updated more that 1 record is
+		// a sign of database schema error, so better stop any opertations before
+		// datamage to database becomes to high
+		panic("Database schema error")
+	}
+	return err
+}
+
+// DeleteEventOlderThan implements app.Storage.
+func (s *StorageSQL) DeleteEventOlderThan(now time.Time) error {
+	_, err := s.db.Exec("DELETE FROM event WHERE starttime < $1", now)
+	return err
+}
+
+// GetUpcomingEvents implements app.Storage.
+func (s *StorageSQL) GetUpcomingEvents(now time.Time) ([]storage.Event, error) {
+	events := make([]storage.Event, 0)
+	err := s.db.Select(&events, `
+SELECT id, title, starttime, duration, description, userid, notifytime, notification_sent
+FROM event
+WHERE starttime > $1 AND EXTRACT(epoch FROM starttime - $1) < notifytime`, now)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
 
 func New(connstr string) *StorageSQL {
@@ -43,10 +72,12 @@ func New(connstr string) *StorageSQL {
 }
 
 func (s *StorageSQL) CreateEvent(event storage.Event) error {
-	_, err := s.db.Exec("INSERT INTO event VALUES ($1, $2, $3, $4, $5, $6, $7)",
+	_, err := s.db.Exec(`INSERT 
+		INTO event (id, title, starttime, duration, description, userid, notifytime) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		event.ID, event.Title, event.StartTime,
 		event.Duration, event.Description,
-		event.UserID, event.NotifyTime)
+		event.UserID, event.NotifyTime.Seconds())
 
 	return err
 }
