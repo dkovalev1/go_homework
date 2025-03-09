@@ -12,18 +12,25 @@ import (
 type Config struct {
 	Logger  LoggerConf
 	Storage StorageConf
-	// TODO
+	REST    RESTConf
+	GRPC    GRPCConf
 }
 
 type LoggerConf struct {
 	Level string
-	// TODO
 }
 
 type StorageConf struct {
 	Type    string
 	Connstr string
-	// TODO
+}
+
+type RESTConf struct {
+	Port int
+}
+
+type GRPCConf struct {
+	Port int
 }
 
 func NewConfig(configFile string) Config {

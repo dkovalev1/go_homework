@@ -15,14 +15,14 @@ var (
 )
 
 type App struct { // TODO
-	log     *logger.Logger
-	storage Storage
+	Log     *logger.Logger
+	Storage Storage
 }
 
 type Storage interface { // TODO
 	CreateEvent(storage.Event) error
 	UpdateEvent(storage.Event) error
-	DeleteEvent(storage.Event) error
+	DeleteEvent(string) error
 	GetAllEventsDay(time.Time) ([]storage.Event, error)
 	GetAllEventsWeek(time.Time) ([]storage.Event, error)
 	GetAllEventsMonth(time.Time) ([]storage.Event, error)
@@ -30,14 +30,11 @@ type Storage interface { // TODO
 
 func New(logger *logger.Logger, storage Storage) *App {
 	return &App{
-		log:     logger,
-		storage: storage,
+		Log:     logger,
+		Storage: storage,
 	}
 }
 
 func (a *App) CreateEvent(_ context.Context, id, title string) error {
-	// TODO
-	return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	return a.Storage.CreateEvent(storage.Event{ID: id, Title: title})
 }
-
-// TODO

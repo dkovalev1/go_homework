@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: OTUS calendar service - OpenAPI 3.0
+  description: >-
+    This is a sample calendar service
+    Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: me@home
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: event
+    description: Everything about Event
+paths:
+  /:
+    get:
+      tags:
+        - info
+      responses:
+        '200':
+          description: Successful operation
+  /info:
+    get:
+      tags:
+        - info
+      responses:
+        '200':
+          description: Successful operation
+  /hello:
+    get:
+      tags:
+        - info
+      responses:
+        '200':
+          description: Successful operation
+  /event:
+    put:
+      tags:
+        - event
+      summary: Update an existing event
+      description: Update an existing event by Id
+      operationId: updateEvent
+      requestBody:
+        description: Update an existent event in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+        '422':
+          description: Validation exception
+    post:
+      tags:
+        - event
+      summary: Add a new event to the store
+      description: Add a new event to the store
+      operationId: addEvent
+      requestBody:
+        description: Create a new event in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+  /event/{interval}:
+    get:
+      tags:
+        - event
+      summary: Find events for the interval by ID
+      description: Returns a list of events
+      operationId: getEvents
+      parameters:
+        - name: interval
+          in: path
+          description: Interval of event(s) to return
+          required: true
+          schema:
+            type: string
+            enum:
+              - day
+              - week
+              - month
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventArray'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+  /event/{id}:
+    delete:
+      tags:
+        - event
+      summary: Deletes an event
+      description: delete an event
+      operationId: deleteEvent
+      parameters:
+        - name: id
+          in: path
+          description: Event id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid pet value
+
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        ID:
+          type: string
+          example: ev1
+        Title:
+          type: string
+          example: "hello world"
+        StartTime:
+          type: integer
+          format: date-time
+          example: 7
+        Duration:
+          type: integer
+          format: date-time
+        Description:
+          type: string
+          description: Order Status
+          example: approved
+          enum:
+            - placed
+            - approved
+            - delivered
+        UserID:
+          type: string
+        NotifyTime:
+          type: integer
+          format: date-time
+    EventArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Event'
+  requestBodies:
+    Event:
+      description: Event object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Event'

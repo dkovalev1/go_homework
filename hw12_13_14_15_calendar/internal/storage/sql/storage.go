@@ -66,8 +66,8 @@ WHERE id=$1`,
 	return err
 }
 
-func (s *StorageSQL) DeleteEvent(event storage.Event) error {
-	r, err := s.db.Exec("DELETE FROM event WHERE id=$1", event.ID)
+func (s *StorageSQL) DeleteEvent(id string) error {
+	r, err := s.db.Exec("DELETE FROM event WHERE id=$1", id)
 	if err != nil {
 		return err
 	}
