@@ -45,7 +45,7 @@ func main() {
 
 	interruptChan := make(chan struct{})
 
-	scheduler := scheduler.New(&config.RabbitMQ, storage)
+	scheduler := scheduler.New(&config.RabbitMQ, logg, storage)
 	scheduler.Start(interruptChan)
 
 	<-ctx.Done()

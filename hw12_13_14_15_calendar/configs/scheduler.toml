@@ -7,5 +7,5 @@ connstr = "host=localhost user=calendar password=calendar dbname=calendardb sslm
 
 [rabbitmq]
 connstr = "amqp://calendar:calendarmq@localhost:5672/"
-interval=5
-KeepEvents=10
+interval="2s"
+KeepEvents="5h0m10s"

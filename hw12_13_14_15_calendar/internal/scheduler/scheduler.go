@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"    //nolint
@@ -14,20 +15,25 @@ type Scheduler struct {
 	keepEvents time.Duration
 	storage    app.Storage
 	logger     *logger.Logger
-	queue      *rabbit.Rabbit
+	queue      rabbit.IRabbit
 }
 
-func New(config *config.RabbitConf, storage app.Storage) *Scheduler {
+func New(config *config.RabbitConf, logger *logger.Logger, storage app.Storage) *Scheduler {
 	ret := &Scheduler{
 		interval: config.Interval,
+		logger:   logger,
 		storage:  storage,
 	}
+
+	queue := rabbit.NewRabbit(config.Connstr, logger)
+	ret.queue = queue
 
 	return ret
 }
 
 func (s *Scheduler) Run(interruptChan <-chan struct{}) error {
 	// Main loop
+	s.logger.Info("Scheduler started")
 	for {
 		s.performSendEvents()
 		s.deleteOldEvents()
@@ -55,11 +61,13 @@ func (s *Scheduler) performSendEvents() {
 		return
 	}
 
+	s.logger.Info(fmt.Sprintf("Found %d event(s) to send", len(events)))
+
 	for _, event := range events {
 		// It could be more efficient to filter out
 		// already sent events on the database level,
 		// but for the sake of stricter program layer design will do it here
-		if !event.NotificationSent {
+		if event.NotificationSent {
 			continue
 		}
 
@@ -68,6 +76,8 @@ func (s *Scheduler) performSendEvents() {
 		if err != nil {
 			s.logger.Error(err.Error())
 		}
+		s.storage.MarkEventAsNotificationSent(event.ID)
+		s.logger.Info("Sent a message: " + notification.EventID + " " + notification.Title + " " + notification.Time.String())
 	}
 }
 

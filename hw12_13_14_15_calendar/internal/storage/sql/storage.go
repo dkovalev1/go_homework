@@ -48,7 +48,7 @@ func (s *StorageSQL) DeleteEventOlderThan(now time.Time) error {
 func (s *StorageSQL) GetUpcomingEvents(now time.Time) ([]storage.Event, error) {
 	events := make([]storage.Event, 0)
 	err := s.db.Select(&events, `
-SELECT id, title, starttime, duration, description, userid, notifytime
+SELECT id, title, starttime, duration, description, userid, notifytime, notification_sent
 FROM event
 WHERE starttime > $1 AND EXTRACT(epoch FROM starttime - $1) < notifytime`, now)
 	if err != nil {

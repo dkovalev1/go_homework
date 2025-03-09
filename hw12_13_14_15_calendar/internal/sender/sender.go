@@ -23,6 +23,7 @@ func New(config *config.Config, logger *logger.Logger) *Sender {
 }
 
 func (s *Sender) Run(interruptChan <-chan struct{}) error {
+	s.logger.Info("Sender started")
 	err := s.rabbit.ReceiveNotifications(interruptChan, func(n *rabbit.Notification) {
 		s.logger.Info("Received a message: " + n.EventID + " " + n.Title + " " + n.Time.String())
 	})

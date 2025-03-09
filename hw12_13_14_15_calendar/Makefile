@@ -1,6 +1,8 @@
 BIN:=./bin/calendar
 BIN_SENDER:=./bin/sender
 BIN_SCHEDULER:=./bin/scheduler
+GINKGO=$(GOPATH)/bin/ginkgo
+GINKGO_FLAGS := -r --keep-going --randomize-suites --randomize-all --no-color
 
 DOCKER_IMG="calendar:develop"
 
@@ -40,9 +42,15 @@ compose-up:
 compose-down:
 	(cd deployments && docker compose down)
 
-test: compose-up
-	go test -race ./internal/... ./pkg/...
+test: compose-up integration end_to_end
+	
 	# compose-down
+
+integration: compose-up
+	go test -race ./internal/... ./pkg/...
+
+end_to_end : compose-up $(GINKGO)
+	ginkgo $(GINKGO_FLAGS) --timeout=5m --poll-progress-after=0s end_to_end 2>&1
 
 install-lint-deps:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
@@ -54,4 +62,4 @@ lint: install-lint-deps
 generate:
 	cd api && protoc --go_out=. --go-grpc_out=. EventService.proto
 
-.PHONY: build run build-img run-img version test lint
+.PHONY: build run build-img run-img version test lint end_to_end
