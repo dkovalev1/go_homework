@@ -3,10 +3,10 @@ package scheduler
 import (
 	"time"
 
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/config"
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/rabbit"
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"    //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/config" //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger" //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/rabbit" //nolint
 )
 
 type Scheduler struct {
@@ -17,10 +17,10 @@ type Scheduler struct {
 	queue      *rabbit.Rabbit
 }
 
-func New(config *config.Config) *Scheduler {
-
+func New(config *config.RabbitConf, storage app.Storage) *Scheduler {
 	ret := &Scheduler{
-		interval: config.RabbitMQ.Interval,
+		interval: config.Interval,
+		storage:  storage,
 	}
 
 	return ret
@@ -34,9 +34,9 @@ func (s *Scheduler) Run(interruptChan <-chan struct{}) error {
 
 		select {
 		case <-time.After(s.interval):
-			// Perform scheduled tasks here
+			// Perform scheduled tasks on the next step
 		case <-interruptChan:
-			// Handle interrupt signal and exit loop if needed
+			// Got interrupt signal, exit loop if needed
 			return nil
 		}
 	}
@@ -49,14 +49,20 @@ func (s *Scheduler) Start(interruptChan <-chan struct{}) error {
 
 func (s *Scheduler) performSendEvents() {
 	// Perform sender tasks here
-
-	events, err := s.storage.GetAllCurrentEvents()
+	events, err := s.storage.GetUpcomingEvents(time.Now())
 	if err != nil {
 		s.logger.Error(err.Error())
 		return
 	}
 
 	for _, event := range events {
+		// It could be more efficient to filter out
+		// already sent events on the database level,
+		// but for the sake of stricter program layer design will do it here
+		if !event.NotificationSent {
+			continue
+		}
+
 		notification := rabbit.NewNotification(event)
 		err = s.queue.SendNotification(notification)
 		if err != nil {

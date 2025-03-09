@@ -34,8 +34,15 @@ run-img: build-img
 version: build
 	$(BIN) version
 
-test:
+compose-up:
+	(cd deployments && docker compose up -d)
+
+compose-down:
+	(cd deployments && docker compose down)
+
+test: compose-up
 	go test -race ./internal/... ./pkg/...
+	# compose-down
 
 install-lint-deps:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest

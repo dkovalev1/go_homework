@@ -14,14 +14,48 @@ type StorageIM struct {
 	events map[string]storage.Event
 }
 
-// DeleteEventOlderThan implements app.Storage.
-func (s *StorageIM) DeleteEventOlderThan(time.Time) error {
-	panic("unimplemented")
+func (s *StorageIM) MarkEventAsNotificationSent(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	event, ok := s.events[id]
+	if !ok {
+		return app.ErrNotFound
+	}
+	event.NotificationSent = true
+	s.events[id] = event
+
+	return nil
 }
 
-// GetAllCurrentEvents implements app.Storage.
-func (s *StorageIM) GetAllCurrentEvents() ([]storage.Event, error) {
-	panic("unimplemented")
+func (s *StorageIM) DeleteEventOlderThan(t time.Time) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for id := range s.events {
+		if s.events[id].StartTime.Before(t) {
+			delete(s.events, id)
+		}
+	}
+
+	return nil
+}
+
+func (s *StorageIM) GetUpcomingEvents(now time.Time) ([]storage.Event, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	var ret []storage.Event
+	for _, v := range s.events {
+		notify := v.StartTime.Add(-v.NotifyTime)
+
+		if v.StartTime.After(now) &&
+			notify.Before(now) {
+			// but sending not noti
+			ret = append(ret, v)
+		}
+	}
+
+	return ret, nil
 }
 
 func New() *StorageIM {

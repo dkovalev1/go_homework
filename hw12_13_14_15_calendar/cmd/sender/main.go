@@ -6,8 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/config"
-	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/sender"
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/config" //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger" //nolint
+	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/sender" //nolint
 )
 
 var configFile string
@@ -21,13 +22,15 @@ func main() {
 
 	config := config.NewConfig(configFile)
 
+	logg := logger.New(config.Logger.Level)
+
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
 	interruptChan := make(chan struct{})
 
-	sender := sender.New(config)
+	sender := sender.New(config, logg)
 	sender.Start(interruptChan)
 
 	<-ctx.Done()
