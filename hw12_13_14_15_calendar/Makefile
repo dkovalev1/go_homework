@@ -1,7 +1,7 @@
 BIN:=./bin/calendar
 BIN_SENDER:=./bin/sender
 BIN_SCHEDULER:=./bin/scheduler
-GINKGO=$(GOPATH)/bin/ginkgo
+GINKGO=ginkgo
 GINKGO_FLAGS := -r --keep-going --randomize-suites --randomize-all --no-color
 
 DOCKER_IMG="calendar:develop"
