@@ -3,10 +3,10 @@ CREATE TABLE event (
 	id          text PRIMARY KEY,
 	title       text,
 	starttime   time,
-	duration    int, -- in seconds
+	duration    int, -- in microseconds
 	description text,
 	userid      int,
-	NotifyTime  int -- in seconds
+	NotifyTime  int -- in microseconds
 );
 
 -- +goose Down

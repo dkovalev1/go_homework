@@ -1,0 +1,11 @@
+[logger]
+level = "INFO"
+
+[storage]
+type = "SQL" # IM or SQL
+connstr = "host=localhost user=calendar password=calendar dbname=calendardb sslmode=disable"
+
+[rabbitmq]
+connstr = "amqp://calendar:calendarmq@localhost:5672/"
+interval=5
+KeepEvents=10

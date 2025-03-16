@@ -13,10 +13,11 @@ import (
 func createTestEvents(s *StorageIM, times []time.Time) error {
 	for i, st := range times {
 		err := s.CreateEvent(storage.Event{
-			ID:        fmt.Sprintf("test%d", i),
-			Title:     fmt.Sprintf("titletest%d", i),
-			StartTime: st,
-			Duration:  time.Hour,
+			ID:         fmt.Sprintf("test%d", i),
+			Title:      fmt.Sprintf("titletest%d", i),
+			StartTime:  st,
+			Duration:   time.Hour,
+			NotifyTime: time.Hour * 2,
 		})
 		if err != nil {
 			return err
@@ -36,7 +37,7 @@ func checkEvents(t *testing.T, start time.Time, expectedLen int,
 
 const testEventID = "test"
 
-func TestStorage(t *testing.T) {
+func TestStorage(t *testing.T) { //nolint:funlen
 	t.Run("CreateEvent", func(t *testing.T) {
 		s := New()
 
@@ -147,5 +148,72 @@ func TestStorage(t *testing.T) {
 
 		checkEvents(t, times[0], 4, s.GetAllEventsMonth)
 		checkEvents(t, times[1], 5, s.GetAllEventsMonth)
+	})
+
+	t.Run("MarkEventAsNotificationSent", func(t *testing.T) {
+		s := New()
+
+		err := s.CreateEvent(storage.Event{
+			ID:    testEventID,
+			Title: "titletest",
+		})
+		require.NoError(t, err)
+
+		err = s.MarkEventAsNotificationSent(testEventID)
+		require.NoError(t, err)
+		require.True(t, s.events[testEventID].NotificationSent)
+
+		// Test for non-existent event
+		err = s.MarkEventAsNotificationSent("nonexistent")
+		require.Error(t, err)
+		require.ErrorIs(t, err, app.ErrNotFound)
+	})
+
+	t.Run("DeleteEventOlderThan", func(t *testing.T) {
+		s := New()
+
+		times := []time.Time{
+			time.Now(),
+			time.Now().Add(time.Hour * 24 * -10),
+			time.Now().Add(time.Hour * 24 * -20),
+			time.Now().Add(time.Hour * 24 * -25),
+			time.Now().Add(time.Hour * 24 * -30),
+			time.Now().Add(time.Hour * 24 * -35),
+			time.Now().Add(time.Hour * 24 * 5),
+			time.Now().Add(time.Hour * 24 * 10),
+		}
+
+		err := createTestEvents(s, times)
+		require.NoError(t, err)
+
+		err = s.DeleteEventOlderThan(time.Now().Add(time.Hour * 24 * -40))
+		require.NoError(t, err)
+		require.Len(t, s.events, 8)
+
+		err = s.DeleteEventOlderThan(time.Now().Add(time.Hour * 24 * -21))
+		require.NoError(t, err)
+		require.Len(t, s.events, 5)
+
+		err = s.DeleteEventOlderThan(time.Now())
+		require.NoError(t, err)
+		require.Len(t, s.events, 2)
+	})
+
+	t.Run("GetUpcomingEvents", func(t *testing.T) {
+		s := New()
+
+		times := []time.Time{
+			time.Now().Add(time.Hour * -3),
+			time.Now().Add(time.Hour * -1),
+			time.Now().Add(time.Hour * 1),
+			time.Now().Add(time.Hour * 3),
+		}
+
+		err := createTestEvents(s, times)
+		require.NoError(t, err)
+
+		checkEvents(t, time.Now(), 1, s.GetUpcomingEvents)
+		checkEvents(t, time.Now().Add(time.Hour*2), 1, s.GetUpcomingEvents)
+		checkEvents(t, time.Now().Add(time.Hour*4), 0, s.GetUpcomingEvents)
 	})
 }

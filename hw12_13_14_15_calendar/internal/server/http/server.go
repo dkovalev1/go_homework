@@ -168,7 +168,7 @@ func (s *Server) Start(_ context.Context) error {
 
 	go func() {
 		if err := s.server.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
-			log.Fatal(err)
+			s.log.Info(err.Error())
 		}
 		s.cancelCtx()
 	}()
