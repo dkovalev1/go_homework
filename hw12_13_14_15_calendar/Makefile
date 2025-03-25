@@ -35,6 +35,9 @@ run-img: build-img
 version: build
 	$(BIN) version
 
+compose-build:
+	docker compose -f deployments/docker-compose.yaml build
+
 compose-up:
 	docker compose -f deployments/docker-compose.yaml up -d
 
@@ -47,7 +50,7 @@ compose-test-up:
 compose-test-down:
 	docker compose -f deployments/docker-compose-test.yaml down
 
-up: compose-up
+up: compose-build compose-up
 
 down: compose-down
 

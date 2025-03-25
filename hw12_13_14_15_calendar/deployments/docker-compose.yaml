@@ -87,6 +87,17 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  integration:
+    image: otus15/integration
+    pull_policy: never
+    build:
+      context: ..
+      dockerfile: build/Dockerfile.scheduler
+    depends_on:
+      - calendar
+      - sender
+      - scheduler
+
 volumes:
   calendardb-data:
   rabbitmq-data:
