@@ -29,6 +29,8 @@ type Storage interface {
 	GetUpcomingEvents(time.Time) ([]storage.Event, error)
 	MarkEventAsNotificationSent(string) error
 	DeleteEventOlderThan(time.Time) error
+
+	AddNotification(eventID, title string, stamp time.Time, user int) error
 }
 
 func New(logger *logger.Logger, storage Storage) *App {

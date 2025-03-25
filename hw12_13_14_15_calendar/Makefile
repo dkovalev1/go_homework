@@ -36,19 +36,29 @@ version: build
 	$(BIN) version
 
 compose-up:
-	(cd deployments && docker compose up -d)
+	docker compose -f deployments/docker-compose.yaml up -d
 
 compose-down:
-	(cd deployments && docker compose down)
+	docker compose -f deployments/docker-compose.yaml down
 
-test: compose-up integration end_to_end
-	
-	# compose-down
+compose-test-up:
+	docker compose -f deployments/docker-compose-test.yaml up -d
 
-integration: compose-up
+compose-test-down:
+	docker compose -f deployments/docker-compose-test.yaml down
+
+up: compose-up
+
+down: compose-down
+
+test: compose-test-up
 	go test -race ./internal/... ./pkg/...
+	make compose-test-down
 
-end_to_end : install-ginkgo compose-up 
+integration-tests: install-ginkgo compose-up 
+	ginkgo $(GINKGO_FLAGS) --timeout=5m --poll-progress-after=0s integration 2>&1
+
+end_to_end : install-ginkgo build compose-test-up 
 	ginkgo $(GINKGO_FLAGS) --timeout=5m --poll-progress-after=0s end_to_end 2>&1
 
 install-ginkgo:

@@ -11,9 +11,9 @@ import (
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"                       //nolint
 	memorystorage "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage/memory" //nolint
 	"github.com/stretchr/testify/require"                                                           //nolint
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/grpc"                                                                        //nolint
+	"google.golang.org/grpc/credentials/insecure"                                                   //nolint
+	"google.golang.org/protobuf/types/known/timestamppb"                                            //nolint
 )
 
 type testContext struct {
