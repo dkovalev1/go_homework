@@ -1,3 +1,5 @@
+#  Test setup - containers with no volumes to have no persistence between runs
+
 services:
   db:
     image: postgres
@@ -16,7 +18,6 @@ services:
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - .:/docker-entrypoint-initdb.d
-      - calendardb-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     healthcheck:
@@ -39,8 +40,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=calendar
       - RABBITMQ_DEFAULT_PASS=calendarmq
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
     ports:
       - 15672:15672
       - 5672:5672
@@ -49,55 +48,3 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-
-  calendar:
-    image: otus15/calendar
-    pull_policy: never
-    build:
-      context: ..
-      dockerfile: build/Dockerfile
-    ports:
-      - 8080:8080
-      - 8081:8081
-    depends_on:
-      db:
-        condition: service_healthy
-
-  sender:
-    image: otus15/sender
-    pull_policy: never
-    build:
-      context: ..
-      dockerfile: build/Dockerfile.sender
-    depends_on:
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  scheduler:
-    image: otus15/scheduler
-    pull_policy: never
-    build:
-      context: ..
-      dockerfile: build/Dockerfile.scheduler
-    depends_on:
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  integration:
-    image: otus15/integration
-    pull_policy: never
-    build:
-      context: ..
-      dockerfile: build/Dockerfile.scheduler
-    depends_on:
-      - calendar
-      - sender
-      - scheduler
-
-volumes:
-  calendardb-data:
-  rabbitmq-data:

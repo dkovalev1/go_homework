@@ -14,6 +14,7 @@ import (
 const (
 	connstr     = "host=localhost user=calendar password=calendar dbname=calendardb sslmode=disable"
 	testEventID = "test"
+	title       = "titletest"
 )
 
 type testContext struct {
@@ -48,7 +49,6 @@ func TestStorage(t *testing.T) { //nolint:funlen
 
 		s := New(connstr)
 
-		title := "titletest"
 		now := time.Now()
 
 		err := s.CreateEvent(storage.Event{
@@ -79,6 +79,49 @@ func TestStorage(t *testing.T) { //nolint:funlen
 		// db can not support nanoseconds, so lets consider precision is 1 mcs
 		require.True(t, delta < time.Microsecond)
 		require.Equal(t, 3600, events[0].NotifyTime)
+	})
+
+	t.Run("CreateEvents", func(t *testing.T) {
+		context := setUp(t)
+		defer func() {
+			tearDown(t, context)
+		}()
+
+		s := New(connstr)
+
+		title := "titletest"
+		start := time.Now()
+
+		const nEvents = 2000
+		for i := range nEvents {
+			id := fmt.Sprintf("%s_%d", testEventID, i)
+			start = start.Add(10 * time.Minute)
+			err := s.CreateEvent(storage.Event{
+				ID:         id,
+				Title:      title,
+				StartTime:  start,
+				NotifyTime: time.Hour,
+			})
+			require.NoError(t, err)
+		}
+
+		// Do check
+
+		var count []int
+		err := context.con.Select(&count, "SELECT COUNT(*) FROM event")
+		require.NoError(t, err)
+		require.Equal(t, nEvents, count[0])
+
+		type dbEvent struct {
+			ID         string
+			Title      string
+			StartTime  time.Time
+			NotifyTime int
+		}
+		var events []dbEvent
+		err = context.con.Select(&events, "SELECT id,title,starttime,notifytime FROM event")
+		require.NoError(t, err)
+		require.Equal(t, nEvents, len(events))
 	})
 
 	t.Run("UpdateEvent", func(t *testing.T) {

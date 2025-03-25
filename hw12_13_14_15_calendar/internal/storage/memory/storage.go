@@ -134,3 +134,7 @@ func (s *StorageIM) GetAllEventsMonth(start time.Time) ([]storage.Event, error) 
 	end := start.Add(time.Hour * 24 * 30)
 	return s.getAllEventsByPeriod(start, end)
 }
+
+func (s *StorageIM) AddNotification(_, _ string, _ time.Time, _ int) error {
+	return app.ErrNotImpl
+}

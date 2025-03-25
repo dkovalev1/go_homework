@@ -10,9 +10,9 @@ import (
 	app "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"         //nolint
 	logger "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger"   //nolint
 	storage "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/storage" //nolint
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/grpc"                                                           //nolint
+	"google.golang.org/protobuf/types/known/durationpb"                                //nolint
+	"google.golang.org/protobuf/types/known/timestamppb"                               //nolint
 )
 
 type CalendarService struct {
