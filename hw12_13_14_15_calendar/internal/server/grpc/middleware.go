@@ -6,7 +6,7 @@ import (
 	"time"
 
 	logger "github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/logger" //nolint
-	"google.golang.org/grpc"
+	"google.golang.org/grpc"                                                         //nolint
 )
 
 type CallLogger struct {

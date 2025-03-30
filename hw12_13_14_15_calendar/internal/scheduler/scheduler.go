@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/dkovalev1/go_homework/hw12_13_14_15_calendar/internal/app"    //nolint
@@ -60,8 +59,6 @@ func (s *Scheduler) performSendEvents() {
 		s.logger.Error(err.Error())
 		return
 	}
-
-	s.logger.Info(fmt.Sprintf("Found %d event(s) to send", len(events)))
 
 	for _, event := range events {
 		// It could be more efficient to filter out

@@ -132,10 +132,43 @@ WHERE starttime >= $1 AND starttime < $2`,
 	return events, err
 }
 
-func (s *StorageSQL) GetAllEventsWeek(_ time.Time) ([]storage.Event, error) {
-	return nil, app.ErrNotImpl
+func (s *StorageSQL) GetAllEventsWeek(day time.Time) ([]storage.Event, error) {
+	events := make([]storage.Event, 0)
+	start := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
+	end := start.AddDate(0, 0, 7)
+
+	err := s.db.Select(&events, `
+SELECT id, title, starttime, duration, description, userid, notifytime
+FROM event
+WHERE starttime >= $1 AND starttime < $2`,
+		start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, err
 }
 
-func (s *StorageSQL) GetAllEventsMonth(_ time.Time) ([]storage.Event, error) {
-	return nil, app.ErrNotImpl
+func (s *StorageSQL) GetAllEventsMonth(day time.Time) ([]storage.Event, error) {
+	events := make([]storage.Event, 0)
+	start := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
+	end := start.AddDate(0, 1, 0)
+
+	err := s.db.Select(&events, `
+SELECT id, title, starttime, duration, description, userid, notifytime
+FROM event
+WHERE starttime >= $1 AND starttime < $2`,
+		start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, err
+}
+
+func (s *StorageSQL) AddNotification(eventID, title string, stamp time.Time, user int) error {
+	_, err := s.db.Exec(`INSERT INTO notification(eventid, title, start, userid)
+		VALUES ($1, $2, $3, $4)`, eventID, title, stamp, user)
+
+	return err
 }
